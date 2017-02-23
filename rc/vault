@@ -1,0 +1,20 @@
+#!/bin/sh
+
+export PATH=/u/bin:$PATH
+
+mkdir -p /u/etc
+cat >/u/etc/vault.conf <<EOF
+listener "tcp" {
+  address = "0.0.0.0:8200"
+  tls_cert_file = "/u/etc/tls/cert.pem"
+  tls_key_file  = "/u/etc/tls/key.pem"
+}
+backend "file" {
+  path = "/srv/vault"
+}
+EOF
+
+vault server \
+  -config /u/etc/vault.conf \
+  -log-level debug \
+  2>&1 | rlog

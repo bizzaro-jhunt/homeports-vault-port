@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eu
+IMAGE=homeports-dev/vault
+CONTAINER=vault.dev
+
+# ip addr show | grep inet.*brd | awk '{print $2}' | sed -e 's@/.*@@'
+if [[ -z "${DOMAIN:-}" ]]; then
+	echo >&2 "#############################################"
+	echo >&2 "You must set the DOMAIN environment variable."
+	echo >&2
+	echo >&2 "Try DOMAIN=example.com $0"
+	echo >&2
+	exit 1
+fi
+
+CERTS=$(mktemp -d home.ports.XXXXXXXX)
+trap "rm -rf $CERTS" EXIT TERM INT
+
+mkdir -p data/etc/tls
+openssl req \
+  -newkey rsa:4096 -nodes -sha256 \
+  -keyout data/etc/tls/key.pem \
+  -x509 -days 3650 \
+  -subj "/O=Homeport/CN=vault.$DOMAIN" \
+  -out data/etc/tls/cert.pem
+
+(set +e
+ docker kill $CONTAINER
+ docker rm $CONTAINER) 2>/dev/null
+
+docker run -d \
+  --name $CONTAINER \
+  --cap-add=IPC_LOCK \
+  -p 8200:8200 \
+  -v ${PWD}/data/etc/tls:/u/etc/tls \
+  $IMAGE
