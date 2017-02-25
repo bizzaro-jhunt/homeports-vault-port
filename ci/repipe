@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+spruce merge --prune meta ci/pipeline.yml > ci/deploy.yml
+trap 'rm -f ci/deploy.yml' EXIT INT QUIT TERM
+
+fly -t nifty set-pipeline -p homeports-vault -c ci/deploy.yml
