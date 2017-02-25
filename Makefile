@@ -1,8 +1,13 @@
 CACHED :=
 
-build: cache
+default: build
+
+prepare: cache
 	chmod 0755 .cache/bin/* rc/vault
+
+build: prepare
 	docker build -t homeports-dev/vault .
+
 clean:
 	rm -fr .cache
 
@@ -23,4 +28,4 @@ CACHED += .cache/bin/rlog
 
 cache: $(CACHED)
 
-.PHONY: build cache clean
+.PHONY: default prepare build clean cache
