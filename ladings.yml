@@ -7,5 +7,6 @@ vault:
     - '8200:8200'
   volumes:
     - (( concat $DATA "/tls:/u/etc/tls" ))
+    - (( concat $DATA "/vault:/srv/vault" ))
   environment:
     DOMAIN: (( grab $DOMAIN ))

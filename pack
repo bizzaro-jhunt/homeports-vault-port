@@ -19,6 +19,8 @@ openssl req \
   -subj "/O=Homeport/CN=${DOMAIN}" \
   -out ${tlsdir}/cert.pem
 
+need_data "vault" >/dev/null
+
 export DOMAIN
 export DATA="$(need_data)"
 
