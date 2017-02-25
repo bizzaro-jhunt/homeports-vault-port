@@ -1,0 +1,26 @@
+#!/bin/bash
+set -eu
+if [[ -z "${HOMEPORT_IS_RUNNING_THE_SHOW:-}" ]]; then
+  echo >&2 "this script should not be run directly; try \`homeports run vault\` instead..."
+  exit 1
+fi
+
+if [[ -z "${DOMAIN:-}" ]]; then
+  ask_for "What domain would you like to run this Vault for?"
+  DOMAIN=${HOMEPORT_INTERNAL_LAST_VALUE}
+fi
+DOMAIN="vault.${DOMAIN#vault.}"
+
+tlsdir=$(need_data "tls")
+openssl req \
+  -newkey rsa:4096 -nodes -sha256 \
+  -keyout ${tlsdir}/key.pem \
+  -x509 -days 3650 \
+  -subj "/O=Homeport/CN=${DOMAIN}" \
+  -out ${tlsdir}/cert.pem
+
+export DOMAIN
+export IMAGE="${HOMEPORT_INTERNAL_IMAGE}"
+export DATA="$(need_data)"
+
+spruce merge --prune meta ladings.yml >&3

@@ -1,0 +1,11 @@
+vault:
+  image:      (( grab $IMAGE ))
+  privileged: true
+
+  command: /u/bin/init /rc/inittab
+  ports:
+    - '8200:8200'
+  volumes:
+    - (( concat $DATA "/tls:/u/etc/tls" ))
+  environment:
+    DOMAIN: (( grab $DOMAIN ))
