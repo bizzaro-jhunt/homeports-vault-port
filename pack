@@ -20,7 +20,6 @@ openssl req \
   -out ${tlsdir}/cert.pem
 
 export DOMAIN
-export IMAGE="${HOMEPORT_INTERNAL_IMAGE}"
 export DATA="$(need_data)"
 
 spruce merge --prune meta ladings.yml >&3

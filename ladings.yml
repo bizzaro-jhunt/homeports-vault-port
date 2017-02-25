@@ -1,5 +1,5 @@
 vault:
-  image:      (( grab $IMAGE ))
+  image:      homeports/vault
   privileged: true
 
   command: /u/bin/init /rc/inittab
