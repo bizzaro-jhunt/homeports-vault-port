@@ -6,7 +6,7 @@ prepare: cache
 	chmod 0755 .cache/bin/* rc/vault
 
 build: prepare
-	docker build -t homeports-dev/vault .
+	docker build -t homeports/vault:local .
 
 clean:
 	rm -fr .cache

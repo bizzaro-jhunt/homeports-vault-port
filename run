@@ -1,17 +1,12 @@
 #!/bin/bash
 set -eu
-IMAGE=homeports-dev/vault
-CONTAINER=vault.dev
+NAME="homeport.${HOMEPORT_INTERNAL_NAME}"
 
-# ip addr show | grep inet.*brd | awk '{print $2}' | sed -e 's@/.*@@'
 if [[ -z "${DOMAIN:-}" ]]; then
-	echo >&2 "#############################################"
-	echo >&2 "You must set the DOMAIN environment variable."
-	echo >&2
-	echo >&2 "Try DOMAIN=example.com $0"
-	echo >&2
-	exit 1
+  ask_for "What domain would you like to run this vault for?"
+  DOMAIN=${HOMEPORT_INTERNAL_LAST_VALUE}
 fi
+DOMAIN=${DOMAIN#vault.}
 
 CERTS=$(mktemp -d home.ports.XXXXXXXX)
 trap "rm -rf $CERTS" EXIT TERM INT
@@ -24,13 +19,12 @@ openssl req \
   -subj "/O=Homeport/CN=vault.$DOMAIN" \
   -out data/etc/tls/cert.pem
 
-(set +e
- docker kill $CONTAINER
- docker rm $CONTAINER) 2>/dev/null
+(docker kill $NAME || true
+ docker rm   $NAME || true) 2>/dev/null
 
 docker run -d \
-  --name $CONTAINER \
+  --name homeport.$NAME \
   --cap-add=IPC_LOCK \
   -p 8200:8200 \
   -v ${PWD}/data/etc/tls:/u/etc/tls \
-  $IMAGE
+  $HOMEPORT_INTERNAL_IMAGE
